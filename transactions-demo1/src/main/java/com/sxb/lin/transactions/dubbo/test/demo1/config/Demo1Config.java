@@ -1,7 +1,9 @@
 package com.sxb.lin.transactions.dubbo.test.demo1.config;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.sql.DataSource;
 import javax.transaction.SystemException;
@@ -34,7 +36,11 @@ public class Demo1Config {
 		Map<String,DataSource> dataSourceMapping = new HashMap<String, DataSource>();
 		dataSourceMapping.put(AConfig.DB_DEMO1_A, ds1);
 		dataSourceMapping.put(BConfig.DB_DEMO1_B, ds2);
-		instance.init(applicationConfig, registryConfig, protocolConfig, providerConfig, consumerConfig, dataSourceMapping);
+		Set<String> excludeResourceNames = new HashSet<>();
+		excludeResourceNames.add(AConfig.DB_DEMO1_A);
+		excludeResourceNames.add(BConfig.DB_DEMO1_B);
+		instance.init(applicationConfig, registryConfig, protocolConfig, 
+				providerConfig, consumerConfig, dataSourceMapping, excludeResourceNames);
 		return instance;
 	}
 

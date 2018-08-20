@@ -119,7 +119,7 @@ public class Demo3Config {
 		DubboTransactionManagerServiceProxy instance = DubboTransactionManagerServiceProxy.getInstance();
 		Map<String,DataSource> dataSourceMapping = new HashMap<String, DataSource>();
 		dataSourceMapping.put(DB_DEMO3_A, dataSource);
-		instance.init(applicationConfig, registryConfig, protocolConfig, providerConfig, consumerConfig, dataSourceMapping);
+		instance.init(applicationConfig, registryConfig, protocolConfig, providerConfig, consumerConfig, dataSourceMapping, null);
 		return instance;
 	}
     

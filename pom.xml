@@ -20,6 +20,7 @@
 		<module>transactions-demo1</module>
 		<module>transactions-demo2</module>
 		<module>transactions-demo3</module>
+		<module>transactions-demo4</module>
 	</modules>
 	
 	<properties>
@@ -32,6 +33,7 @@
 		<dubbo.version>2.5.10</dubbo.version>
 		<zookeeper.version>3.4.6</zookeeper.version>
 		<zkclient.version>0.8</zkclient.version>
+		<activemq.version>5.15.5</activemq.version>
 	</properties>
 	
 	<!-- 下载私服 -->
@@ -173,6 +175,12 @@
                         <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
                 </exclusions>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.apache.activemq</groupId>
+			    <artifactId>activemq-all</artifactId>
+			    <version>${activemq.version}</version>
 			</dependency>
 		
 		</dependencies>
