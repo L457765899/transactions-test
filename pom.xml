@@ -33,7 +33,7 @@
 		<dubbo.version>2.5.10</dubbo.version>
 		<zookeeper.version>3.4.6</zookeeper.version>
 		<zkclient.version>0.8</zkclient.version>
-		<activemq.version>5.15.5</activemq.version>
+		<rocketmq.version>4.3.0</rocketmq.version>
 	</properties>
 	
 	<!-- 下载私服 -->
@@ -181,6 +181,12 @@
 			    <groupId>org.apache.activemq</groupId>
 			    <artifactId>activemq-all</artifactId>
 			    <version>${activemq.version}</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.apache.rocketmq</groupId>
+			    <artifactId>rocketmq-client</artifactId>
+			    <version>${rocketmq.version}</version>
 			</dependency>
 		
 		</dependencies>

@@ -91,8 +91,18 @@
 		</dependency>
 		
 		<dependency>
-		    <groupId>org.apache.activemq</groupId>
-		    <artifactId>activemq-all</artifactId>
+		    <groupId>org.apache.rocketmq</groupId>
+		    <artifactId>rocketmq-client</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-activemq</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-pool</artifactId>
 		</dependency>
 		
 	</dependencies>
