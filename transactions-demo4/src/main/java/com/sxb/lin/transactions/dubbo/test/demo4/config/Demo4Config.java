@@ -5,23 +5,27 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import javax.jms.ConnectionFactory;
-import javax.jms.Queue;
-import javax.jms.Topic;
+import javax.jms.Session;
 import javax.sql.DataSource;
+import javax.transaction.SystemException;
 
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
+import org.springframework.jms.core.JmsTemplate;
 
 import com.alibaba.druid.pool.xa.DruidXADataSource;
+import com.atomikos.icatch.jta.UserTransactionImp;
+import com.atomikos.icatch.jta.UserTransactionManager;
 
 
 @MapperScan(
@@ -30,64 +34,65 @@ import com.alibaba.druid.pool.xa.DruidXADataSource;
 	)
 @Configuration
 public class Demo4Config {
-
-	@Bean
-	@Primary
-	public Queue normalQueue(){
-		return new ActiveMQQueue("mq.queue.normal.test");
-	}
 	
-	@Bean
-	public Queue transactionQueue(){
-		return new ActiveMQQueue("mq.queue.transaction.test");
-	}
+	public final static String QUEUE_TEST = "mq.queue.test";
 	
-	@Bean
-	@Primary
-	public Topic normalTopic(){
-		return new ActiveMQTopic("mq.topic.normal.test");
-	}
+	public final static String TOPIC_TEST = "mq.topic.test";
 	
-	@Bean
-	public Topic transactionTopic(){
-		return new ActiveMQTopic("mq.topic.transaction.test");
-	}
+	public final static ActiveMQQueue DESTINATION_QUEUE_TEST = new ActiveMQQueue(QUEUE_TEST);
+	
+	public final static ActiveMQTopic DESTINATION_TOPIC_TEST = new ActiveMQTopic(TOPIC_TEST);
+	
+	
+	@Bean(initMethod="init",destroyMethod="close")
+    public UserTransactionManager userTransactionManager(){
+        UserTransactionManager userTransactionManager = new UserTransactionManager();
+        return userTransactionManager;
+    }
+    
+    @Bean
+    public UserTransactionImp userTransactionImp() throws SystemException{
+        UserTransactionImp userTransaction = new UserTransactionImp();
+        return userTransaction;
+    }
 	
 	@Bean
 	@Primary
 	@Autowired
-	public JmsListenerContainerFactory<?> normalJmsListenerContainerQueue(ConnectionFactory activeMQConnectionFactory){
+	public JmsListenerContainerFactory<?> jmsListenerContainerQueue(
+			@Qualifier("pooledJmsConnectionFactory") ConnectionFactory activeMQConnectionFactory){
 		DefaultJmsListenerContainerFactory bean = new DefaultJmsListenerContainerFactory();
         bean.setConnectionFactory(activeMQConnectionFactory);
+        bean.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
+        bean.setPubSubDomain(false);
         return bean;
 	}
 	
 	@Bean
 	@Autowired
-    public JmsListenerContainerFactory<?> normalJmsListenerContainerTopic(ConnectionFactory activeMQConnectionFactory) {
+    public JmsListenerContainerFactory<?> jmsListenerContainerTopic(
+    		@Qualifier("pooledJmsConnectionFactory") ConnectionFactory activeMQConnectionFactory) {
         DefaultJmsListenerContainerFactory bean = new DefaultJmsListenerContainerFactory();
-        bean.setPubSubDomain(true);
         bean.setConnectionFactory(activeMQConnectionFactory);
+        bean.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
+        bean.setPubSubDomain(true);
         return bean;
     }
 	
-//	@Bean
-//	@Autowired
-//	public JmsListenerContainerFactory<?> transactionJmsListenerContainerQueue(ConnectionFactory activeMQConnectionFactory){
-//		DefaultJmsListenerContainerFactory bean = new DefaultJmsListenerContainerFactory();
-//        bean.setConnectionFactory(activeMQConnectionFactory);
-//        return bean;
-//	}
-//	
-//	@Bean
-//	@Autowired
-//	public JmsListenerContainerFactory<?> transactionJmsListenerContainerTopic(ConnectionFactory activeMQConnectionFactory) {
-//        DefaultJmsListenerContainerFactory bean = new DefaultJmsListenerContainerFactory();
-//        bean.setPubSubDomain(true);
-//        bean.setConnectionFactory(activeMQConnectionFactory);
-//        return bean;
-//    }
+	@Bean
+	@Primary
+	@Autowired
+	public JmsTemplate jmsTemplate(@Qualifier("pooledJmsConnectionFactory") ConnectionFactory activeMQConnectionFactory){
+		JmsTemplate jmsTemplate = new JmsTemplate(activeMQConnectionFactory);
+		return jmsTemplate;
+	}
 	
+//	@Bean
+//	@Autowired
+//	public JmsTemplate jtaJmsTemplate(@Qualifier("jmsConnectionFactory") ConnectionFactory activeMQConnectionFactory){
+//		JmsTemplate jmsTemplate = new JmsTemplate(activeMQConnectionFactory);
+//		return jmsTemplate;
+//	}
 	
 	private Properties getConnectProperties(){
 		Properties connectProperties = new Properties();
@@ -132,4 +137,5 @@ public class Demo4Config {
         bean.setMapperLocations(resolver.getResources("classpath:com/sxb/lin/transactions/dubbo/test/demo3/a/mapping/*.xml"));
         return bean;
     }
+	
 }
