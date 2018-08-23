@@ -10,12 +10,20 @@ public class JMSConsumer {
 
 	@JmsListener(destination = Demo4Config.QUEUE_TEST,containerFactory = "jmsListenerContainerQueue")
 	public void receiveQueueNormalTest(String msg){
-		System.out.println("收到一条queue信息:" + msg);
-		throw new RuntimeException();
+		long currentTimeMillis = System.currentTimeMillis();
+		System.out.println(Thread.currentThread().getName()+"收到一条queue信息:" + msg + currentTimeMillis);
+		try {
+			Thread.sleep(10000);
+			System.out.println(currentTimeMillis + "完成");
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		//throw new RuntimeException();
 	}
 	
 	@JmsListener(destination = Demo4Config.TOPIC_TEST,containerFactory = "jmsListenerContainerTopic")
 	public void receiveTopicNormalTest(String msg){
-		System.out.println("收到一条topic信息:" + msg);
+		System.out.println(Thread.currentThread().getName()+"收到一条topic信息:" + msg);
 	}
 }

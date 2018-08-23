@@ -19,13 +19,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
 
 import com.alibaba.druid.pool.xa.DruidXADataSource;
 import com.atomikos.icatch.jta.UserTransactionImp;
 import com.atomikos.icatch.jta.UserTransactionManager;
+import com.sxb.lin.transactions.dubbo.test.demo4.mq.ExtendDefaultJmsListenerContainerFactory;
 
 
 @MapperScan(
@@ -61,10 +61,21 @@ public class Demo4Config {
 	@Autowired
 	public JmsListenerContainerFactory<?> jmsListenerContainerQueue(
 			@Qualifier("pooledJmsConnectionFactory") ConnectionFactory activeMQConnectionFactory){
-		DefaultJmsListenerContainerFactory bean = new DefaultJmsListenerContainerFactory();
+		ExtendDefaultJmsListenerContainerFactory bean = new ExtendDefaultJmsListenerContainerFactory();
         bean.setConnectionFactory(activeMQConnectionFactory);
         bean.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
         bean.setPubSubDomain(false);
+        bean.setConcurrentConsumers(3);
+        bean.setMaxConcurrentConsumers(5);
+        
+//        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+//        executor.setCorePoolSize(3);
+//        executor.setMaxPoolSize(5);
+//        executor.setQueueCapacity(11);
+//        executor.setThreadNamePrefix("QueueListener-");
+//        executor.initialize();
+//        bean.setTaskExecutor(executor);
+        
         return bean;
 	}
 	
@@ -72,10 +83,21 @@ public class Demo4Config {
 	@Autowired
     public JmsListenerContainerFactory<?> jmsListenerContainerTopic(
     		@Qualifier("pooledJmsConnectionFactory") ConnectionFactory activeMQConnectionFactory) {
-        DefaultJmsListenerContainerFactory bean = new DefaultJmsListenerContainerFactory();
+		ExtendDefaultJmsListenerContainerFactory bean = new ExtendDefaultJmsListenerContainerFactory();
         bean.setConnectionFactory(activeMQConnectionFactory);
         bean.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
         bean.setPubSubDomain(true);
+        bean.setConcurrentConsumers(3);
+        bean.setMaxConcurrentConsumers(5);
+        
+//        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+//        executor.setCorePoolSize(3);
+//        executor.setMaxPoolSize(5);
+//        executor.setQueueCapacity(11);
+//        executor.setThreadNamePrefix("TopicListener-");
+//        executor.initialize();
+//        bean.setTaskExecutor(executor);
+        
         return bean;
     }
 	
