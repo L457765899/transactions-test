@@ -1,7 +1,11 @@
 package com.sxb.lin.transactions.dubbo.test.demo4.service.impl;
 
 import javax.annotation.Resource;
+import javax.jms.Connection;
+import javax.jms.JMSException;
 
+import org.apache.activemq.pool.PooledConnection;
+import org.apache.activemq.pool.PooledConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,9 @@ public class MqServiceImpl implements MqService{
 	
 	@Resource(name = "jtaJmsTemplate")
 	private JmsTemplate jtaJmsTemplate;
+	
+	@Resource(name = "pooledJmsConnectionFactory")
+	private PooledConnectionFactory pooledConnectionFactory;
 
 	@Override
 	@Transactional
@@ -36,7 +43,7 @@ public class MqServiceImpl implements MqService{
 		
 		jtaJmsTemplate.convertAndSend(Demo4Config.DESTINATION_TOPIC_TEST, msg);
 		
-		throw new RuntimeException();
+		//throw new RuntimeException();
 	}
 
 	@Override
@@ -49,6 +56,18 @@ public class MqServiceImpl implements MqService{
 		t1Mapper.insertSelective(t1);
 		
 		jtaJmsTemplate.convertAndSend(Demo4Config.DESTINATION_TOPIC_TEST, msg);
+	}
+
+	@Override
+	public void sendXaQueue(String msg) {
+		try {
+			PooledConnection pooledConnection = (PooledConnection) pooledConnectionFactory.createConnection();
+			Connection connection = pooledConnection.getConnection();
+			System.out.println(connection.getClass().getName());
+			pooledConnection.close();
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

@@ -9,7 +9,6 @@ import javax.jms.Session;
 import javax.sql.DataSource;
 import javax.transaction.SystemException;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQXAConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -63,8 +62,9 @@ public class Demo4Config {
 	@Primary
 	@Autowired
     public PooledConnectionFactory pooledJmsConnectionFactory(ActiveMQProperties properties){
-    	ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
+    	ActiveMQXAConnectionFactory connectionFactory = new ActiveMQXAConnectionFactory(
     			properties.getUser(),properties.getPassword(),properties.getBrokerUrl());
+    	
     	ActiveMQProperties.Pool pool = properties.getPool();
     	PooledConnectionFactory pooledConnectionFactory = new PooledConnectionFactory(connectionFactory);
     	pooledConnectionFactory.setBlockIfSessionPoolIsFull(pool.isBlockIfFull());
@@ -85,6 +85,7 @@ public class Demo4Config {
     public AtomikosConnectionFactoryBean xaJmsConnectionFactory(ActiveMQProperties properties){
     	ActiveMQXAConnectionFactory connectionFactory = new ActiveMQXAConnectionFactory(
     			properties.getUser(),properties.getPassword(),properties.getBrokerUrl());
+    	
     	AtomikosConnectionFactoryBean bean = new AtomikosConnectionFactoryBean();
 		bean.setXaConnectionFactory(connectionFactory);
 		bean.setMaxPoolSize(properties.getPool().getMaxConnections());

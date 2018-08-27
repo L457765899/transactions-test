@@ -6,4 +6,6 @@ public interface MqService {
 
 	void sendJtaTopicTest(String msg);
 
+	void sendXaQueue(String msg);
+
 }

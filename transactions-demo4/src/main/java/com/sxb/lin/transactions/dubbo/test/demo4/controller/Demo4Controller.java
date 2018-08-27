@@ -46,4 +46,10 @@ public class Demo4Controller {
 		mqService.sendJtaTopicTest(msg);
 		return RetUtil.getRetValue(msg);
 	}
+	
+	@RequestMapping(value="/sendXaQueue.json")
+	public Map<String,Object> sendXaQueue(String msg){
+		mqService.sendXaQueue(msg);
+		return RetUtil.getRetValue(msg);
+	}
 }
