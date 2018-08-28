@@ -8,4 +8,6 @@ public interface MqService {
 
 	void sendXaQueue(String msg);
 
+	void recover();
+
 }

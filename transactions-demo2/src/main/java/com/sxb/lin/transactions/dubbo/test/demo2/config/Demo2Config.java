@@ -20,6 +20,8 @@ import com.alibaba.dubbo.config.ProviderConfig;
 import com.alibaba.dubbo.config.RegistryConfig;
 import com.atomikos.icatch.jta.UserTransactionImp;
 import com.atomikos.icatch.jta.UserTransactionManager;
+import com.sxb.lin.atomikos.dubbo.pool.recover.DataSourceResource;
+import com.sxb.lin.atomikos.dubbo.pool.recover.UniqueResource;
 import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceProxy;
 import com.sxb.lin.atomikos.dubbo.tm.JtaTransactionManager;
 
@@ -33,9 +35,9 @@ public class Demo2Config {
 			ProviderConfig providerConfig,ConsumerConfig consumerConfig,@Qualifier("dataSource1") DataSource ds1,
 			@Qualifier("dataSource2") DataSource ds2){
 		DubboTransactionManagerServiceProxy instance = DubboTransactionManagerServiceProxy.getInstance();
-		Map<String,DataSource> dataSourceMapping = new HashMap<String, DataSource>();
-		dataSourceMapping.put(AConfig.DB_DEMO2_A, ds1);
-		dataSourceMapping.put(BConfig.DB_DEMO2_B, ds2);
+		Map<String,UniqueResource> dataSourceMapping = new HashMap<String, UniqueResource>();
+		dataSourceMapping.put(AConfig.DB_DEMO2_A, new DataSourceResource(AConfig.DB_DEMO2_A, ds1));
+		dataSourceMapping.put(BConfig.DB_DEMO2_B, new DataSourceResource(BConfig.DB_DEMO2_B, ds2));
 		Set<String> excludeResourceNames = new HashSet<>();
 		excludeResourceNames.add(AConfig.DB_DEMO2_A);
 		excludeResourceNames.add(BConfig.DB_DEMO2_B);

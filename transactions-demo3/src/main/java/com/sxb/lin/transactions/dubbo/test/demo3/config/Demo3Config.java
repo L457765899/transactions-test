@@ -27,6 +27,8 @@ import com.alibaba.dubbo.config.RegistryConfig;
 import com.atomikos.icatch.jta.UserTransactionImp;
 import com.atomikos.icatch.jta.UserTransactionManager;
 import com.sxb.lin.atomikos.dubbo.mybatis.XASpringManagedTransactionFactory;
+import com.sxb.lin.atomikos.dubbo.pool.recover.DataSourceResource;
+import com.sxb.lin.atomikos.dubbo.pool.recover.UniqueResource;
 import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceProxy;
 import com.sxb.lin.atomikos.dubbo.spring.TransactionAttributeSourceProxy;
 import com.sxb.lin.atomikos.dubbo.tm.DataSourceTransactionManager;
@@ -117,8 +119,8 @@ public class Demo3Config {
     	transactionInterceptor.setTransactionAttributeSource(transactionAttributeSourceProxy);
     	
 		DubboTransactionManagerServiceProxy instance = DubboTransactionManagerServiceProxy.getInstance();
-		Map<String,DataSource> dataSourceMapping = new HashMap<String, DataSource>();
-		dataSourceMapping.put(DB_DEMO3_A, dataSource);
+		Map<String,UniqueResource> dataSourceMapping = new HashMap<String, UniqueResource>();
+		dataSourceMapping.put(DB_DEMO3_A, new DataSourceResource(DB_DEMO3_A, dataSource));
 		instance.init(applicationConfig, registryConfig, protocolConfig, providerConfig, consumerConfig, dataSourceMapping, null);
 		return instance;
 	}

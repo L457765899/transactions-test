@@ -52,4 +52,10 @@ public class Demo4Controller {
 		mqService.sendXaQueue(msg);
 		return RetUtil.getRetValue(msg);
 	}
+	
+	@RequestMapping(value="/recover.json")
+	public Map<String,Object> recover(){
+		mqService.recover();
+		return RetUtil.getRetValue(true);
+	}
 }
