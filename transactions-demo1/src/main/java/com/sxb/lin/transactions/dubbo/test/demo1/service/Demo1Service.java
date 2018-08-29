@@ -11,4 +11,8 @@ public interface Demo1Service {
 	void add11();
 
 	void add111();
+
+	void sendJtaQueueTest();
+
+	void sendDubboXaMsg1();
 }

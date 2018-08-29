@@ -94,4 +94,24 @@ public class Demo1Controller {
 		demo1Service.add111();
 		return RetUtil.getRetValue(true);
 	}
+	
+	/**
+	 * 测试消息队列事务
+	 * @return
+	 */
+	@RequestMapping(value="/sendJtaQueueTest.json")
+	public Map<String,Object> sendJtaQueueTest(){
+		demo1Service.sendJtaQueueTest();
+		return RetUtil.getRetValue(true);
+	}
+	
+	/**
+	 * demo1->mq->demo4->mq
+	 * @return
+	 */
+	@RequestMapping(value="/sendDubboXaMsg1.json")
+	public Map<String,Object> sendDubboXaMsg1(){
+		demo1Service.sendDubboXaMsg1();
+		return RetUtil.getRetValue(true);
+	}
 }

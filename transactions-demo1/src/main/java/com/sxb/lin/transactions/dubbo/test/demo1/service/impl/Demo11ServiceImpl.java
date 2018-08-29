@@ -1,14 +1,18 @@
 package com.sxb.lin.transactions.dubbo.test.demo1.service.impl;
 
+import javax.annotation.Resource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.sxb.lin.atomikos.dubbo.spring.jms.JtaJmsTemplate;
 import com.sxb.lin.transactions.dubbo.test.demo1.a.dao.T1Mapper;
 import com.sxb.lin.transactions.dubbo.test.demo1.a.model.T1;
 import com.sxb.lin.transactions.dubbo.test.demo1.b.dao.T2Mapper;
 import com.sxb.lin.transactions.dubbo.test.demo1.b.model.T2;
+import com.sxb.lin.transactions.dubbo.test.demo1.config.MQConfig;
 import com.sxb.lin.transactions.dubbo.test.demo1.service.Demo11Service;
 import com.sxb.lin.transactions.dubbo.test.demo2.service.Demo2Service;
 import com.sxb.lin.transactions.dubbo.test.demo3.service.Demo33Service;
@@ -28,6 +32,9 @@ public class Demo11ServiceImpl implements Demo11Service{
 	
 	@Reference
 	private Demo2Service demo2Service;
+	
+	@Resource(name = "jtaJmsTemplate")
+	private JtaJmsTemplate jtaJmsTemplate;
 
 	@Override
 	@Transactional
@@ -114,6 +121,24 @@ public class Demo11ServiceImpl implements Demo11Service{
 		t2.setName("demo1-t2-33-"+System.currentTimeMillis());
 		t2.setTime(System.currentTimeMillis());
 		t2Mapper.insertSelective(t2);
+	}
+
+	@Override
+	@Transactional
+	public void sendDubboXaMsg4() {
+		T1 t1 = new T1();
+		t1.setName("dubbo jdbc jms 分布式事务测试-demo1-t1");
+		t1.setTime(System.currentTimeMillis());
+		t1Mapper.insertSelective(t1);
+		
+		T2 t2 = new T2();
+		t2.setName("dubbo jdbc jms 分布式事务测试-demo1-t2");
+		t2.setTime(System.currentTimeMillis());
+		t2Mapper.insertSelective(t2);
+		
+		jtaJmsTemplate.convertAndSend(MQConfig.DESTINATION_QUEUE_TEST, "dubbo jdbc jms 分布式事务消息1-demo1");
+		
+		jtaJmsTemplate.convertAndSend(MQConfig.DESTINATION_TOPIC_TEST, "dubbo jdbc jms 分布式事务消息2-demo1");
 	}
 
 }

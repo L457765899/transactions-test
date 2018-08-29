@@ -19,14 +19,17 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.atomikos.datasource.xa.XID;
 import com.sxb.lin.atomikos.dubbo.annotation.XA;
+import com.sxb.lin.transactions.dubbo.test.demo1.service.Demo11Service;
 import com.sxb.lin.transactions.dubbo.test.demo3.a.dao.T1Mapper;
 import com.sxb.lin.transactions.dubbo.test.demo3.a.model.T1;
 import com.sxb.lin.transactions.dubbo.test.demo4.config.Demo4Config;
 import com.sxb.lin.transactions.dubbo.test.demo4.service.MqService;
 
 @Service
+@com.alibaba.dubbo.config.annotation.Service
 public class MqServiceImpl implements MqService{
 	
 	@Autowired
@@ -37,6 +40,9 @@ public class MqServiceImpl implements MqService{
 	
 	@Resource(name = "pooledJmsConnectionFactory")
 	private PooledConnectionFactory pooledConnectionFactory;
+	
+	@Reference
+	private Demo11Service demo11Service;
 
 	@Override
 	@XA
@@ -54,7 +60,7 @@ public class MqServiceImpl implements MqService{
 		
 		jtaJmsTemplate.convertAndSend(Demo4Config.DESTINATION_TOPIC_TEST, msg);
 		
-		//throw new RuntimeException();
+		throw new RuntimeException();
 	}
 
 	@Override
@@ -132,7 +138,7 @@ public class MqServiceImpl implements MqService{
 				Xid[] recover = xaResource.recover(XAResource.TMSTARTRSCAN);
 				for(Xid x : recover){
 					System.out.println(x.toString());
-					xaResource.commit(x, false);
+					//xaResource.commit(x, false);
 				}
 			} catch (XAException e) {
 				e.printStackTrace();
@@ -142,6 +148,56 @@ public class MqServiceImpl implements MqService{
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	@XA
+	@Transactional
+	public void batchSend() {
+		jtaJmsTemplate.convertAndSend(Demo4Config.DESTINATION_QUEUE_TEST, "批量发送1");
+		
+		jtaJmsTemplate.convertAndSend(Demo4Config.DESTINATION_QUEUE_TEST, "批量发送2");
+		
+		jtaJmsTemplate.convertAndSend(Demo4Config.DESTINATION_QUEUE_TEST, "批量发送3");
+		
+		jtaJmsTemplate.convertAndSend(Demo4Config.DESTINATION_TOPIC_TEST, "批量发送4");
+		
+		throw new RuntimeException();
+	}
+
+	@Override
+	@XA
+	@Transactional
+	public void sendDubboXaMsg4() {
+		T1 t1 = new T1();
+		t1.setName("dubbo jdbc jms 分布式事务测试-demo4");
+		t1.setTime(System.currentTimeMillis());
+		t1Mapper.insertSelective(t1);
+		
+		jtaJmsTemplate.convertAndSend(Demo4Config.DESTINATION_QUEUE_TEST, "dubbo jdbc jms 分布式事务消息1-demo4");
+		
+		jtaJmsTemplate.convertAndSend(Demo4Config.DESTINATION_QUEUE_TEST, "dubbo jdbc jms 分布式事务消息2-demo4");
+		
+		jtaJmsTemplate.convertAndSend(Demo4Config.DESTINATION_TOPIC_TEST, "dubbo jdbc jms 分布式事务消息3-demo4");
+		
+		demo11Service.sendDubboXaMsg4();
+		
+		throw new RuntimeException();
+	}
+
+	@Override
+	@Transactional
+	public void sendDubboXaMsg1() {
+		T1 t1 = new T1();
+		t1.setName("dubbo jdbc jms 分布式事务测试-demo4");
+		t1.setTime(System.currentTimeMillis());
+		t1Mapper.insertSelective(t1);
+		
+		jtaJmsTemplate.convertAndSend(Demo4Config.DESTINATION_QUEUE_TEST, "dubbo jdbc jms 分布式事务消息1-demo4");
+		
+		jtaJmsTemplate.convertAndSend(Demo4Config.DESTINATION_QUEUE_TEST, "dubbo jdbc jms 分布式事务消息2-demo4");
+		
+		jtaJmsTemplate.convertAndSend(Demo4Config.DESTINATION_TOPIC_TEST, "dubbo jdbc jms 分布式事务消息3-demo4");
 	}
 
 }

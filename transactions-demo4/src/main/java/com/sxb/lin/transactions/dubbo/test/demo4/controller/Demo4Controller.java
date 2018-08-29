@@ -58,4 +58,20 @@ public class Demo4Controller {
 		mqService.recover();
 		return RetUtil.getRetValue(true);
 	}
+	
+	@RequestMapping(value="/batchSend.json")
+	public Map<String,Object> batchSend(){
+		mqService.batchSend();
+		return RetUtil.getRetValue(true);
+	}
+	
+	/**
+	 * demo4->mq->demo1->mq
+	 * @return
+	 */
+	@RequestMapping(value="/sendDubboXaMsg4.json")
+	public Map<String,Object> sendDubboXaMsg4(){
+		mqService.sendDubboXaMsg4();
+		return RetUtil.getRetValue(true);
+	}
 }
