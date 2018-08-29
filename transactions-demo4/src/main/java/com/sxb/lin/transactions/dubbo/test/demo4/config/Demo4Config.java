@@ -2,10 +2,13 @@ package com.sxb.lin.transactions.dubbo.test.demo4.config;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.jms.ConnectionFactory;
-import javax.jms.Session;
 import javax.sql.DataSource;
 import javax.transaction.SystemException;
 
@@ -22,16 +25,27 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.transaction.jta.JtaTransactionManager;
+import org.springframework.transaction.interceptor.TransactionAttributeSource;
+import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 import com.alibaba.druid.pool.xa.DruidXADataSource;
+import com.alibaba.dubbo.config.ApplicationConfig;
+import com.alibaba.dubbo.config.ConsumerConfig;
+import com.alibaba.dubbo.config.ProtocolConfig;
+import com.alibaba.dubbo.config.ProviderConfig;
+import com.alibaba.dubbo.config.RegistryConfig;
 import com.atomikos.icatch.jta.UserTransactionImp;
 import com.atomikos.icatch.jta.UserTransactionManager;
-import com.atomikos.jdbc.AtomikosDataSourceBean;
 import com.atomikos.jms.AtomikosConnectionFactoryBean;
-import com.sxb.lin.transactions.dubbo.test.demo4.mq.ExtendDefaultJmsListenerContainerFactory;
+import com.sxb.lin.atomikos.dubbo.mybatis.XASpringManagedTransactionFactory;
+import com.sxb.lin.atomikos.dubbo.pool.recover.ConnectionFactoryResource;
+import com.sxb.lin.atomikos.dubbo.pool.recover.DataSourceResource;
+import com.sxb.lin.atomikos.dubbo.pool.recover.UniqueResource;
+import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceProxy;
+import com.sxb.lin.atomikos.dubbo.spring.TransactionAttributeSourceProxy;
+import com.sxb.lin.atomikos.dubbo.spring.jms.JtaJmsTemplate;
+import com.sxb.lin.atomikos.dubbo.tm.DataSourceTransactionManager;
 
 
 @MapperScan(
@@ -51,7 +65,7 @@ public class Demo4Config {
 	
 	public final static String DB_DEMO4_A = "DB-demo4-a";
 	
-	public final static String MQ_DEMO4_B = "MQ-demo4-b";
+	public final static String MQ = "MQ";
     
     @Bean
     public ActiveMQProperties activeMQProperties(){
@@ -89,43 +103,43 @@ public class Demo4Config {
     	AtomikosConnectionFactoryBean bean = new AtomikosConnectionFactoryBean();
 		bean.setXaConnectionFactory(connectionFactory);
 		bean.setMaxPoolSize(properties.getPool().getMaxConnections());
-		bean.setUniqueResourceName(MQ_DEMO4_B);
+		bean.setUniqueResourceName(MQ);
 		return bean;
     }
 	
-	@Bean
-	@Primary
-	@Autowired
-	public JmsListenerContainerFactory<?> jmsListenerContainerQueue(
-			@Qualifier("pooledJmsConnectionFactory") ConnectionFactory activeMQConnectionFactory){
-		ExtendDefaultJmsListenerContainerFactory bean = new ExtendDefaultJmsListenerContainerFactory();
-        bean.setConnectionFactory(activeMQConnectionFactory);
-        bean.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
-        bean.setPubSubDomain(false);
-        bean.setConcurrentConsumers(3);
-        bean.setMaxConcurrentConsumers(5);
-        
-//        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-//        executor.setCorePoolSize(3);
-//        executor.setMaxPoolSize(5);
-//        executor.setQueueCapacity(11);
-//        executor.setThreadNamePrefix("QueueListener-");
-//        executor.initialize();
-//        bean.setTaskExecutor(executor);
-        
-        return bean;
-	}
-	
-	@Bean
-	@Autowired
-    public JmsListenerContainerFactory<?> jmsListenerContainerTopic(
-    		@Qualifier("pooledJmsConnectionFactory") ConnectionFactory activeMQConnectionFactory) {
-		ExtendDefaultJmsListenerContainerFactory bean = new ExtendDefaultJmsListenerContainerFactory();
-        bean.setConnectionFactory(activeMQConnectionFactory);
-        bean.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
-        bean.setPubSubDomain(true);
-        return bean;
-    }
+//	@Bean
+//	@Primary
+//	@Autowired
+//	public JmsListenerContainerFactory<?> jmsListenerContainerQueue(
+//			@Qualifier("pooledJmsConnectionFactory") ConnectionFactory activeMQConnectionFactory){
+//		ExtendDefaultJmsListenerContainerFactory bean = new ExtendDefaultJmsListenerContainerFactory();
+//        bean.setConnectionFactory(activeMQConnectionFactory);
+//        bean.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
+//        bean.setPubSubDomain(false);
+//        bean.setConcurrentConsumers(3);
+//        bean.setMaxConcurrentConsumers(5);
+//        
+////        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+////        executor.setCorePoolSize(3);
+////        executor.setMaxPoolSize(5);
+////        executor.setQueueCapacity(11);
+////        executor.setThreadNamePrefix("QueueListener-");
+////        executor.initialize();
+////        bean.setTaskExecutor(executor);
+//        
+//        return bean;
+//	}
+//	
+//	@Bean
+//	@Autowired
+//    public JmsListenerContainerFactory<?> jmsListenerContainerTopic(
+//    		@Qualifier("pooledJmsConnectionFactory") ConnectionFactory activeMQConnectionFactory) {
+//		ExtendDefaultJmsListenerContainerFactory bean = new ExtendDefaultJmsListenerContainerFactory();
+//        bean.setConnectionFactory(activeMQConnectionFactory);
+//        bean.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
+//        bean.setPubSubDomain(true);
+//        return bean;
+//    }
 	
 	@Bean
 	@Primary
@@ -137,8 +151,12 @@ public class Demo4Config {
 	
 	@Bean
 	@Autowired
-	public JmsTemplate jtaJmsTemplate(@Qualifier("xaJmsConnectionFactory") ConnectionFactory activeMQConnectionFactory){
-		JmsTemplate jmsTemplate = new JmsTemplate(activeMQConnectionFactory);
+	public JtaJmsTemplate jtaJmsTemplate(@Qualifier("xaJmsConnectionFactory") ConnectionFactory connectionFactory,
+			@Qualifier("pooledJmsConnectionFactory") ConnectionFactory dubboConnectionFactory){
+		JtaJmsTemplate jmsTemplate = new JtaJmsTemplate();
+		jmsTemplate.setConnectionFactory(connectionFactory);
+		jmsTemplate.setDubboUniqueResourceName(MQ);
+		jmsTemplate.setDubboConnectionFactory(dubboConnectionFactory);
 		return jmsTemplate;
 	}
 	
@@ -173,19 +191,7 @@ public class Demo4Config {
         druidXADataSource.setUsername("root");
         druidXADataSource.setPassword("Sxb889961");
         
-        AtomikosDataSourceBean atomikosDataSourceBean = new AtomikosDataSourceBean();
-        atomikosDataSourceBean.setUniqueResourceName(DB_DEMO4_A);
-        atomikosDataSourceBean.setPoolSize(5);
-        atomikosDataSourceBean.setMinPoolSize(3);
-        atomikosDataSourceBean.setMaxPoolSize(10);
-        atomikosDataSourceBean.setBorrowConnectionTimeout(60);
-        atomikosDataSourceBean.setMaxIdleTime(1800);
-        atomikosDataSourceBean.setMaintenanceInterval(30);
-        atomikosDataSourceBean.setLoginTimeout(3600);
-        atomikosDataSourceBean.setTestQuery("SELECT 1");
-        atomikosDataSourceBean.setXaDataSource(druidXADataSource);
-        
-        return atomikosDataSourceBean;
+        return druidXADataSource;
 	}
 	
 	@Bean
@@ -195,6 +201,7 @@ public class Demo4Config {
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();  
         bean.setDataSource(dataSource);
         bean.setMapperLocations(resolver.getResources("classpath:com/sxb/lin/transactions/dubbo/test/demo3/a/mapping/*.xml"));
+        bean.setTransactionFactory(new XASpringManagedTransactionFactory(DB_DEMO4_A));
         return bean;
     }
 	
@@ -210,14 +217,41 @@ public class Demo4Config {
         return userTransaction;
     }
 	
-	@Bean
-    @Autowired
-    public JtaTransactionManager jtaTransactionManager(UserTransactionManager userTransactionManager,
-            UserTransactionImp userTransaction){
-        JtaTransactionManager jtaTransactionManager = new JtaTransactionManager();
-        jtaTransactionManager.setUserTransaction(userTransaction);
-        jtaTransactionManager.setTransactionManager(userTransactionManager);
-        return jtaTransactionManager;
+    @Bean
+	@Autowired
+	public DubboTransactionManagerServiceProxy dubboTransactionManagerServiceProxy(
+			ApplicationConfig applicationConfig,RegistryConfig registryConfig,ProtocolConfig protocolConfig,
+			ProviderConfig providerConfig,ConsumerConfig consumerConfig,DataSource dataSource,
+			TransactionInterceptor transactionInterceptor,@Qualifier("pooledJmsConnectionFactory") ConnectionFactory connectionFactory){
+    	
+    	TransactionAttributeSource transactionAttributeSource = transactionInterceptor.getTransactionAttributeSource();
+    	TransactionAttributeSourceProxy transactionAttributeSourceProxy = new TransactionAttributeSourceProxy();
+    	transactionAttributeSourceProxy.setTransactionAttributeSource(transactionAttributeSource);
+    	transactionInterceptor.setTransactionAttributeSource(transactionAttributeSourceProxy);
+    	
+		Map<String,UniqueResource> dataSourceMapping = new HashMap<String, UniqueResource>();
+		dataSourceMapping.put(DB_DEMO4_A, new DataSourceResource(DB_DEMO4_A, dataSource));
+		dataSourceMapping.put(MQ, new ConnectionFactoryResource(MQ, connectionFactory));
+		
+		Set<String> excludeResourceNames = new HashSet<>();
+		excludeResourceNames.add(MQ);
+		
+		DubboTransactionManagerServiceProxy instance = DubboTransactionManagerServiceProxy.getInstance();
+		instance.init(applicationConfig, registryConfig, protocolConfig, providerConfig, consumerConfig, 
+				dataSourceMapping, excludeResourceNames);
+		
+		return instance;
+	}
+    
+    @Bean
+	@Autowired
+    public DataSourceTransactionManager dataSourceTransactionManager(UserTransactionManager userTransactionManager,
+            UserTransactionImp userTransaction,DataSource dataSource){
+    	DataSourceTransactionManager dataSourceTransactionManager = new DataSourceTransactionManager();
+    	dataSourceTransactionManager.setDataSource(dataSource);
+    	dataSourceTransactionManager.setUserTransaction(userTransaction);
+    	dataSourceTransactionManager.setTransactionManager(userTransactionManager);
+    	return dataSourceTransactionManager;
     }
 	
 }

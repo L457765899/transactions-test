@@ -1,13 +1,14 @@
-package com.sxb.lin.transactions.dubbo.test.demo4.mq;
+package com.sxb.lin.transactions.dubbo.test.demo1.mq;
 
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.stereotype.Component;
 
-import com.sxb.lin.transactions.dubbo.test.demo4.config.Demo4Config;
+import com.sxb.lin.transactions.dubbo.test.demo1.config.MQConfig;
 
-//@Component
+@Component
 public class JMSConsumer {
 
-	@JmsListener(destination = Demo4Config.QUEUE_TEST,containerFactory = "jmsListenerContainerQueue")
+	@JmsListener(destination = MQConfig.QUEUE_TEST,containerFactory = "jmsListenerContainerQueue")
 	public void receiveQueueNormalTest(String msg){
 		long currentTimeMillis = System.currentTimeMillis();
 		System.out.println(Thread.currentThread().getName()+"收到一条queue信息:" + msg + currentTimeMillis);
@@ -21,7 +22,7 @@ public class JMSConsumer {
 		//throw new RuntimeException();
 	}
 	
-	@JmsListener(destination = Demo4Config.TOPIC_TEST,containerFactory = "jmsListenerContainerTopic")
+	@JmsListener(destination = MQConfig.TOPIC_TEST,containerFactory = "jmsListenerContainerTopic")
 	public void receiveTopicNormalTest(String msg){
 		System.out.println(Thread.currentThread().getName()+"收到一条topic信息:" + msg);
 	}

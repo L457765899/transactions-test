@@ -118,10 +118,12 @@ public class Demo3Config {
     	transactionAttributeSourceProxy.setTransactionAttributeSource(transactionAttributeSource);
     	transactionInterceptor.setTransactionAttributeSource(transactionAttributeSourceProxy);
     	
-		DubboTransactionManagerServiceProxy instance = DubboTransactionManagerServiceProxy.getInstance();
 		Map<String,UniqueResource> dataSourceMapping = new HashMap<String, UniqueResource>();
 		dataSourceMapping.put(DB_DEMO3_A, new DataSourceResource(DB_DEMO3_A, dataSource));
+		
+		DubboTransactionManagerServiceProxy instance = DubboTransactionManagerServiceProxy.getInstance();
 		instance.init(applicationConfig, registryConfig, protocolConfig, providerConfig, consumerConfig, dataSourceMapping, null);
+		
 		return instance;
 	}
     

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.jms.ConnectionFactory;
 import javax.sql.DataSource;
 import javax.transaction.SystemException;
 
@@ -20,6 +21,7 @@ import com.alibaba.dubbo.config.ProviderConfig;
 import com.alibaba.dubbo.config.RegistryConfig;
 import com.atomikos.icatch.jta.UserTransactionImp;
 import com.atomikos.icatch.jta.UserTransactionManager;
+import com.sxb.lin.atomikos.dubbo.pool.recover.ConnectionFactoryResource;
 import com.sxb.lin.atomikos.dubbo.pool.recover.DataSourceResource;
 import com.sxb.lin.atomikos.dubbo.pool.recover.UniqueResource;
 import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceProxy;
@@ -31,18 +33,25 @@ public class Demo1Config {
 	@Bean
 	@Autowired
 	public DubboTransactionManagerServiceProxy dubboTransactionManagerServiceProxy(
-			ApplicationConfig applicationConfig,RegistryConfig registryConfig,ProtocolConfig protocolConfig,
-			ProviderConfig providerConfig,ConsumerConfig consumerConfig,@Qualifier("dataSource1") DataSource ds1,
-			@Qualifier("dataSource2") DataSource ds2){
-		DubboTransactionManagerServiceProxy instance = DubboTransactionManagerServiceProxy.getInstance();
+			ApplicationConfig applicationConfig, RegistryConfig registryConfig, 
+			ProtocolConfig protocolConfig, ProviderConfig providerConfig, ConsumerConfig consumerConfig,
+			@Qualifier("dataSource1") DataSource ds1, @Qualifier("dataSource2") DataSource ds2,
+			@Qualifier("pooledJmsConnectionFactory") ConnectionFactory connectionFactory){
+		
 		Map<String,UniqueResource> dataSourceMapping = new HashMap<String, UniqueResource>();
 		dataSourceMapping.put(AConfig.DB_DEMO1_A, new DataSourceResource(AConfig.DB_DEMO1_A, ds1));
 		dataSourceMapping.put(BConfig.DB_DEMO1_B, new DataSourceResource(BConfig.DB_DEMO1_B, ds2));
+		dataSourceMapping.put(MQConfig.MQ, new ConnectionFactoryResource(MQConfig.MQ, connectionFactory));
+		
 		Set<String> excludeResourceNames = new HashSet<>();
 		excludeResourceNames.add(AConfig.DB_DEMO1_A);
 		excludeResourceNames.add(BConfig.DB_DEMO1_B);
+		excludeResourceNames.add(MQConfig.MQ);
+		
+		DubboTransactionManagerServiceProxy instance = DubboTransactionManagerServiceProxy.getInstance();
 		instance.init(applicationConfig, registryConfig, protocolConfig, 
 				providerConfig, consumerConfig, dataSourceMapping, excludeResourceNames);
+		
 		return instance;
 	}
 

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.atomikos.datasource.xa.XID;
+import com.sxb.lin.atomikos.dubbo.annotation.XA;
 import com.sxb.lin.transactions.dubbo.test.demo3.a.dao.T1Mapper;
 import com.sxb.lin.transactions.dubbo.test.demo3.a.model.T1;
 import com.sxb.lin.transactions.dubbo.test.demo4.config.Demo4Config;
@@ -38,6 +39,7 @@ public class MqServiceImpl implements MqService{
 	private PooledConnectionFactory pooledConnectionFactory;
 
 	@Override
+	@XA
 	@Transactional
 	public void sendJtaQueueTest(String msg) {
 		
