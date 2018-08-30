@@ -10,8 +10,8 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>transactions-demo4</artifactId>
-	<name>transactions-demo4</name>
+	<artifactId>transactions-demo5</artifactId>
+	<name>transactions-demo5</name>
 	
 	<build>
         <plugins>
@@ -91,14 +91,10 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-activemq</artifactId>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.apache.activemq</groupId>
-			<artifactId>activemq-pool</artifactId>
+		    <groupId>org.apache.rocketmq</groupId>
+		    <artifactId>rocketmq-client</artifactId>
 		</dependency>
 		
 	</dependencies>
+
 </project>

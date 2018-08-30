@@ -21,6 +21,7 @@
 		<module>transactions-demo2</module>
 		<module>transactions-demo3</module>
 		<module>transactions-demo4</module>
+		<module>transactions-demo5</module>
 	</modules>
 	
 	<properties>
