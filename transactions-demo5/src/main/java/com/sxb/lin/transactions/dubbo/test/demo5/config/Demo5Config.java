@@ -2,10 +2,21 @@ package com.sxb.lin.transactions.dubbo.test.demo5.config;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.sql.DataSource;
 import javax.transaction.SystemException;
 
+import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
+import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
+import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
+import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
+import org.apache.rocketmq.client.exception.MQClientException;
+import org.apache.rocketmq.client.producer.LocalTransactionState;
+import org.apache.rocketmq.client.producer.TransactionListener;
+import org.apache.rocketmq.client.producer.TransactionMQProducer;
+import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.common.message.MessageExt;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +30,9 @@ import org.springframework.transaction.jta.JtaTransactionManager;
 import com.atomikos.icatch.jta.UserTransactionImp;
 import com.atomikos.icatch.jta.UserTransactionManager;
 import com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean;
+import com.sxb.lin.atomikos.dubbo.rocketmq.MQProducerFor2PC;
+import com.sxb.lin.atomikos.dubbo.rocketmq.TransactionListenerImpl;
+import com.sxb.lin.transactions.dubbo.test.demo4.util.RetUtil;
 
 
 @MapperScan(
@@ -27,6 +41,8 @@ import com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean;
 	)
 @Configuration
 public class Demo5Config {
+	
+	public final static String TOPIC_TEST = "mq_topic_test";
 	
 	public final static String DB_DEMO5_A = "DB-demo5-a";
 	
@@ -117,4 +133,54 @@ public class Demo5Config {
         return jtaTransactionManager;
     }
 	
+    @Primary
+    @Bean(initMethod="start",destroyMethod="shutdown")
+    public TransactionMQProducer defaultProducer(){
+    	TransactionMQProducer producer = new TransactionMQProducer("producer_test");
+    	producer.setNamesrvAddr("192.168.0.252:9876");
+    	producer.setTransactionListener(new TransactionListener() {
+			@Override
+			public LocalTransactionState executeLocalTransaction(Message msg, Object arg) {
+				System.out.println("本地事务完成。");
+				return LocalTransactionState.COMMIT_MESSAGE;
+			}
+			
+			@Override
+			public LocalTransactionState checkLocalTransaction(MessageExt msg) {
+				System.out.println(RetUtil.getDatetime() + "事务消息检查。" + msg.toString());
+				//return LocalTransactionState.COMMIT_MESSAGE;
+				return LocalTransactionState.UNKNOW;
+			}
+		});
+    	return producer;
+    }
+    
+    @Bean(initMethod="start",destroyMethod="shutdown")
+    public MQProducerFor2PC producerFor2PC(){
+    	MQProducerFor2PC producer = new MQProducerFor2PC("producer_test_2PC");
+    	producer.setNamesrvAddr("192.168.0.252:9876");
+    	producer.setTransactionListener(new TransactionListenerImpl());
+		return producer;
+    }
+    
+    @Bean(initMethod="start",destroyMethod="shutdown")
+    public DefaultMQPushConsumer defaultConsumer() throws MQClientException {
+    	DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("consumer_test");
+    	consumer.setNamesrvAddr("192.168.0.252:9876");
+    	consumer.subscribe(TOPIC_TEST, "*");
+    	consumer.registerMessageListener(new MessageListenerConcurrently(){
+
+			@Override
+			public ConsumeConcurrentlyStatus consumeMessage(
+					List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
+				for(MessageExt msg : msgs){
+					System.out.println(RetUtil.getDatetime() + "消费成功。" + msg.toString());
+					System.out.println(new String(msg.getBody()));
+				}
+				return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+			}
+    		
+    	});
+    	return consumer;
+    }
 }

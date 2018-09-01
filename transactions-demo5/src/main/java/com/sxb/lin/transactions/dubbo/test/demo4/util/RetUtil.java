@@ -1,5 +1,7 @@
 package com.sxb.lin.transactions.dubbo.test.demo4.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -83,4 +85,15 @@ public class RetUtil {
         return retMp;
     }
 
+    public static String getDatetime() {
+        SimpleDateFormat tempDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String datetime = tempDate.format(new Date());
+        return datetime;
+    }
+    
+    public static String getDatetime(long time) {
+        SimpleDateFormat tempDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String datetime = tempDate.format(new Date(time));
+        return datetime;
+    }
 }
