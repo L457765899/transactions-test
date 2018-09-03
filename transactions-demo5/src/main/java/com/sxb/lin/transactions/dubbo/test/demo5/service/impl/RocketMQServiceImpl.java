@@ -25,9 +25,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.sxb.lin.atomikos.dubbo.rocketmq.MQProducerFor2PC;
 import com.sxb.lin.transactions.dubbo.test.demo1.b.dao.T2Mapper;
 import com.sxb.lin.transactions.dubbo.test.demo1.b.model.T2;
+import com.sxb.lin.transactions.dubbo.test.demo2.service.Demo2Service;
 import com.sxb.lin.transactions.dubbo.test.demo4.util.RetUtil;
 import com.sxb.lin.transactions.dubbo.test.demo5.config.Demo5Config;
 import com.sxb.lin.transactions.dubbo.test.demo5.service.RocketMQService;
@@ -47,6 +49,9 @@ public class RocketMQServiceImpl implements RocketMQService{
 	
 	@Autowired
 	private T2Mapper t2Mapper;
+	
+	@Reference
+	private Demo2Service demo2Service;
 	
 	@Override
 	public Map<String,Object> send() {
@@ -197,7 +202,7 @@ public class RocketMQServiceImpl implements RocketMQService{
 				(System.currentTimeMillis() + "本地事务测试两段提交。").getBytes());
 		producer2PC.send2PCMessageInTransaction(msg);
 		
-		//throw new RuntimeException();
+		throw new RuntimeException();
 	}
 
 	@Override
@@ -221,6 +226,25 @@ public class RocketMQServiceImpl implements RocketMQService{
 		producer2PC.sendMessageAfterTransaction(msg2);
 		
 		throw new RuntimeException();
+	}
+
+	@Override
+	@Transactional
+	public void sendDubboXa() {
+		T2 t2 = new T2();
+		t2.setName("test send dubbo xa");
+		t2.setTime(System.currentTimeMillis());
+		t2Mapper.insertSelective(t2);
+		
+		Message msg = new Message(
+				Demo5Config.TOPIC_TEST,
+				"TagA",
+				(System.currentTimeMillis() + "demo5 dubbo事务测试两段提交。").getBytes());
+		producer2PC.send2PCMessageInTransaction(msg);
+		
+		demo2Service.sendDubboXa();
+		
+		//throw new RuntimeException();
 	}
 
 	

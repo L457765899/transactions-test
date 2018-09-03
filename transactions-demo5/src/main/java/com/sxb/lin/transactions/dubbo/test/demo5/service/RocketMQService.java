@@ -17,4 +17,6 @@ public interface RocketMQService {
 	void sendLocalXa();
 
 	void sendLocalTra();
+
+	void sendDubboXa();
 }

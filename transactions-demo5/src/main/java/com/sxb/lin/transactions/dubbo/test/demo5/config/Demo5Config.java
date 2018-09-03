@@ -2,7 +2,11 @@ package com.sxb.lin.transactions.dubbo.test.demo5.config;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.sql.DataSource;
 import javax.transaction.SystemException;
@@ -25,13 +29,21 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.transaction.jta.JtaTransactionManager;
 
+import com.alibaba.dubbo.config.ApplicationConfig;
+import com.alibaba.dubbo.config.ConsumerConfig;
+import com.alibaba.dubbo.config.ProtocolConfig;
+import com.alibaba.dubbo.config.ProviderConfig;
+import com.alibaba.dubbo.config.RegistryConfig;
 import com.atomikos.icatch.jta.UserTransactionImp;
 import com.atomikos.icatch.jta.UserTransactionManager;
 import com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean;
+import com.sxb.lin.atomikos.dubbo.pool.recover.DataSourceResource;
+import com.sxb.lin.atomikos.dubbo.pool.recover.UniqueResource;
 import com.sxb.lin.atomikos.dubbo.rocketmq.MQProducerFor2PC;
 import com.sxb.lin.atomikos.dubbo.rocketmq.TransactionListenerImpl;
+import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceProxy;
+import com.sxb.lin.atomikos.dubbo.tm.JtaTransactionManager;
 import com.sxb.lin.transactions.dubbo.test.demo4.util.RetUtil;
 
 
@@ -122,6 +134,26 @@ public class Demo5Config {
         UserTransactionImp userTransaction = new UserTransactionImp();
         return userTransaction;
     }
+    
+    @Bean
+	@Autowired
+	public DubboTransactionManagerServiceProxy dubboTransactionManagerServiceProxy(
+			ApplicationConfig applicationConfig, RegistryConfig registryConfig, 
+			ProtocolConfig protocolConfig, ProviderConfig providerConfig, ConsumerConfig consumerConfig,
+			@Qualifier("dataSource2") DataSource ds2){
+		
+		Map<String,UniqueResource> dataSourceMapping = new HashMap<String, UniqueResource>();
+		dataSourceMapping.put(BConfig.DB_DEMO1_B, new DataSourceResource(BConfig.DB_DEMO1_B, ds2));
+		
+		Set<String> excludeResourceNames = new HashSet<>();
+		excludeResourceNames.add(BConfig.DB_DEMO1_B);
+		
+		DubboTransactionManagerServiceProxy instance = DubboTransactionManagerServiceProxy.getInstance();
+		instance.init(applicationConfig, registryConfig, protocolConfig, 
+				providerConfig, consumerConfig, dataSourceMapping, excludeResourceNames);
+		
+		return instance;
+	}
 
     @Bean
     @Autowired

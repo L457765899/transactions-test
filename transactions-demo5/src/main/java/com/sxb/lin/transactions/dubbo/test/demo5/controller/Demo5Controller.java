@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sxb.lin.atomikos.dubbo.tm.TerminatedCommittingTransaction;
+import com.sxb.lin.atomikos.dubbo.tm.TerminatedCommittingTransactionImpl;
 import com.sxb.lin.transactions.dubbo.test.demo4.util.RetUtil;
 import com.sxb.lin.transactions.dubbo.test.demo5.service.Demo5Service;
 import com.sxb.lin.transactions.dubbo.test.demo5.service.RocketMQService;
@@ -19,6 +21,8 @@ public class Demo5Controller {
 	
 	@Autowired
 	private RocketMQService rocketMQService;
+	
+	private TerminatedCommittingTransaction tct = new TerminatedCommittingTransactionImpl();
 
 	/**
 	 * 测试AtomikosNonXADataSourceBean
@@ -64,6 +68,18 @@ public class Demo5Controller {
 	@RequestMapping(value="/sendLocalTra.json")
 	public Map<String,Object> sendLocalTra(){
 		rocketMQService.sendLocalTra();
+		return RetUtil.getRetValue(true);
+	}
+	
+	@RequestMapping(value="/sendDubboXa.json")
+	public Map<String,Object> sendDubboXa(){
+		rocketMQService.sendDubboXa();
+		return RetUtil.getRetValue(true);
+	}
+	
+	@RequestMapping(value="/terminated.json")
+	public Map<String,Object> terminated(String tid){
+		tct.terminated(tid);
 		return RetUtil.getRetValue(true);
 	}
 }

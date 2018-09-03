@@ -22,6 +22,8 @@ import com.atomikos.icatch.jta.UserTransactionImp;
 import com.atomikos.icatch.jta.UserTransactionManager;
 import com.sxb.lin.atomikos.dubbo.pool.recover.DataSourceResource;
 import com.sxb.lin.atomikos.dubbo.pool.recover.UniqueResource;
+import com.sxb.lin.atomikos.dubbo.rocketmq.MQProducerFor2PC;
+import com.sxb.lin.atomikos.dubbo.rocketmq.TransactionListenerImpl;
 import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceProxy;
 import com.sxb.lin.atomikos.dubbo.tm.JtaTransactionManager;
 
@@ -66,5 +68,13 @@ public class Demo2Config {
         jtaTransactionManager.setUserTransaction(userTransaction);
         jtaTransactionManager.setTransactionManager(userTransactionManager);
         return jtaTransactionManager;
+    }
+    
+    @Bean(initMethod="start",destroyMethod="shutdown")
+    public MQProducerFor2PC producerFor2PC(){
+    	MQProducerFor2PC producer = new MQProducerFor2PC("producer_test_2PC");
+    	producer.setNamesrvAddr("192.168.0.252:9876");
+    	producer.setTransactionListener(new TransactionListenerImpl());
+		return producer;
     }
 }

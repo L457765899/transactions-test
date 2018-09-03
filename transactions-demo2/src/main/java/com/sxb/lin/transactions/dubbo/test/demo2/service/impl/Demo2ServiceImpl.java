@@ -1,9 +1,11 @@
 package com.sxb.lin.transactions.dubbo.test.demo2.service.impl;
 
+import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sxb.lin.atomikos.dubbo.rocketmq.MQProducerFor2PC;
 import com.sxb.lin.transactions.dubbo.test.demo2.a.dao.T1Mapper;
 import com.sxb.lin.transactions.dubbo.test.demo2.a.model.T1;
 import com.sxb.lin.transactions.dubbo.test.demo2.b.dao.T2Mapper;
@@ -23,6 +25,9 @@ public class Demo2ServiceImpl implements Demo2Service {
 	
 	@Autowired
 	private Demo22Service demo22Service;
+	
+	@Autowired
+	private MQProducerFor2PC producer;
 
 	@Override
 	@Transactional
@@ -108,6 +113,26 @@ public class Demo2ServiceImpl implements Demo2Service {
 		t2.setName("demo2-t2-33-"+System.currentTimeMillis());
 		t2.setTime(System.currentTimeMillis());
 		t2Mapper.insertSelective(t2);
+	}
+
+	@Override
+	@Transactional
+	public void sendDubboXa() {
+		T1 t1 = new T1();
+		t1.setName("demo2-dubbo-xa");
+		t1.setTime(System.currentTimeMillis());
+		t1Mapper.insertSelective(t1);
+		
+		T2 t2 = new T2();
+		t2.setName("demo2-dubbo-xa");
+		t2.setTime(System.currentTimeMillis());
+		t2Mapper.insertSelective(t2);
+		
+		Message msg = new Message(
+				"mq_topic_test",
+				"TagA",
+				(System.currentTimeMillis() + "demo2 dubbo事务测试两段提交。").getBytes());
+		producer.send2PCMessageInTransaction(msg);
 	}
 
 }
