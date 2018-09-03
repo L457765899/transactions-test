@@ -198,11 +198,11 @@ public class RocketMQServiceImpl implements RocketMQService{
 		
 		Message msg = new Message(
 				Demo5Config.TOPIC_TEST,
-				"TagA",
+				"TagB",
 				(System.currentTimeMillis() + "本地事务测试两段提交。").getBytes());
 		producer2PC.send2PCMessageInTransaction(msg);
 		
-		throw new RuntimeException();
+		//throw new RuntimeException();
 	}
 
 	@Override
@@ -220,12 +220,12 @@ public class RocketMQServiceImpl implements RocketMQService{
 		producer2PC.sendMessageAfterTransaction(msg1);
 		
 		Message msg2 = new Message(
-				Demo5Config.TOPIC_TEST,
+				Demo5Config.TOPIC_OTHER,
 				"TagA",
 				("本地事务后提交2。").getBytes());
 		producer2PC.sendMessageAfterTransaction(msg2);
 		
-		throw new RuntimeException();
+		//throw new RuntimeException();
 	}
 
 	@Override

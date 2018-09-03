@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,8 +11,6 @@ import javax.sql.DataSource;
 import javax.transaction.SystemException;
 
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
-import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
-import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.LocalTransactionState;
@@ -25,6 +22,7 @@ import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -40,6 +38,7 @@ import com.atomikos.icatch.jta.UserTransactionManager;
 import com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean;
 import com.sxb.lin.atomikos.dubbo.pool.recover.DataSourceResource;
 import com.sxb.lin.atomikos.dubbo.pool.recover.UniqueResource;
+import com.sxb.lin.atomikos.dubbo.rocketmq.DefaultMessageListener;
 import com.sxb.lin.atomikos.dubbo.rocketmq.MQProducerFor2PC;
 import com.sxb.lin.atomikos.dubbo.rocketmq.TransactionListenerImpl;
 import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceProxy;
@@ -55,6 +54,8 @@ import com.sxb.lin.transactions.dubbo.test.demo4.util.RetUtil;
 public class Demo5Config {
 	
 	public final static String TOPIC_TEST = "mq_topic_test";
+	
+	public final static String TOPIC_OTHER = "mq_topic_other";
 	
 	public final static String DB_DEMO5_A = "DB-demo5-a";
 	
@@ -196,23 +197,16 @@ public class Demo5Config {
     }
     
     @Bean(initMethod="start",destroyMethod="shutdown")
-    public DefaultMQPushConsumer defaultConsumer() throws MQClientException {
+    @Autowired
+    public DefaultMQPushConsumer defaultConsumer(ApplicationEventPublisher publisher) throws MQClientException {
     	DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("consumer_test");
     	consumer.setNamesrvAddr("192.168.0.252:9876");
-    	consumer.subscribe(TOPIC_TEST, "*");
-    	consumer.registerMessageListener(new MessageListenerConcurrently(){
-
-			@Override
-			public ConsumeConcurrentlyStatus consumeMessage(
-					List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
-				for(MessageExt msg : msgs){
-					System.out.println(RetUtil.getDatetime() + "消费成功。" + msg.toString());
-					System.out.println(new String(msg.getBody()));
-				}
-				return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
-			}
-    		
-    	});
+    	Map<String, String> subscription = new HashMap<String, String>();
+    	subscription.put(TOPIC_TEST, "*");
+    	subscription.put(TOPIC_OTHER, "*");
+    	consumer.setSubscription(subscription);
+    	MessageListenerConcurrently messageListener = new DefaultMessageListener(publisher);
+    	consumer.registerMessageListener(messageListener);
     	return consumer;
     }
 }
