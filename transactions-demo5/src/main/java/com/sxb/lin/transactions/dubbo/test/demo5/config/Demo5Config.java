@@ -201,6 +201,7 @@ public class Demo5Config {
     public DefaultMQPushConsumer defaultConsumer(ApplicationEventPublisher publisher) throws MQClientException {
     	DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("consumer_test");
     	consumer.setNamesrvAddr("192.168.0.252:9876");
+    	//consumer.setConsumeMessageBatchMaxSize(3);
     	Map<String, String> subscription = new HashMap<String, String>();
     	subscription.put(TOPIC_TEST, "*");
     	subscription.put(TOPIC_OTHER, "*");

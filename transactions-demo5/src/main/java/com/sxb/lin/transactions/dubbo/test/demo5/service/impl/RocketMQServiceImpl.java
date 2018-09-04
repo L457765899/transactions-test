@@ -225,6 +225,12 @@ public class RocketMQServiceImpl implements RocketMQService{
 				("本地事务后提交2。").getBytes());
 		producer2PC.sendMessageAfterTransaction(msg2);
 		
+		Message msg3 = new Message(
+				Demo5Config.TOPIC_OTHER,
+				"TagA",
+				("本地事务后提交3。").getBytes());
+		producer2PC.sendMessageAfterTransaction(msg3);
+		
 		//throw new RuntimeException();
 	}
 

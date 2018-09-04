@@ -18,6 +18,7 @@ public class MQConsumer {
 			System.out.println(RetUtil.getDatetime() + "test消费成功。" + msg.toString());
 			System.out.println(new String(msg.getBody()));
 		}
+		//throw new RuntimeException();
 	}
 	
 	@EventListener(condition = "#event.topic=='" + Demo5Config.TOPIC_OTHER + "'")
