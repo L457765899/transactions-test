@@ -29,6 +29,7 @@ import com.atomikos.icatch.jta.UserTransactionManager;
 import com.sxb.lin.atomikos.dubbo.mybatis.XASpringManagedTransactionFactory;
 import com.sxb.lin.atomikos.dubbo.pool.recover.DataSourceResource;
 import com.sxb.lin.atomikos.dubbo.pool.recover.UniqueResource;
+import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceConfig;
 import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceProxy;
 import com.sxb.lin.atomikos.dubbo.spring.TransactionAttributeSourceProxy;
 import com.sxb.lin.atomikos.dubbo.tm.DataSourceTransactionManager;
@@ -121,8 +122,18 @@ public class Demo3Config {
 		Map<String,UniqueResource> dataSourceMapping = new HashMap<String, UniqueResource>();
 		dataSourceMapping.put(DB_DEMO3_A, new DataSourceResource(DB_DEMO3_A, dataSource));
 		
+		DubboTransactionManagerServiceConfig config = new DubboTransactionManagerServiceConfig();
+		config.setApplicationConfig(applicationConfig);
+		config.setRegistryConfig(registryConfig);
+		config.setProtocolConfig(protocolConfig);
+		config.setProviderConfig(providerConfig);
+		config.setConsumerConfig(consumerConfig);
+		config.setUniqueResourceMapping(dataSourceMapping);
+		//config.setServiceDispatcher("xa_all");
+		//config.setServiceLoadbalance("sticky_roundrobin");
+		
 		DubboTransactionManagerServiceProxy instance = DubboTransactionManagerServiceProxy.getInstance();
-		instance.init(applicationConfig, registryConfig, protocolConfig, providerConfig, consumerConfig, dataSourceMapping, null);
+		instance.init(config);
 		
 		return instance;
 	}

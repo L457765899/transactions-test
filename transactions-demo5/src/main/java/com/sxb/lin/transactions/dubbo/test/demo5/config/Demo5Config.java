@@ -41,6 +41,7 @@ import com.sxb.lin.atomikos.dubbo.pool.recover.UniqueResource;
 import com.sxb.lin.atomikos.dubbo.rocketmq.DefaultMessageListener;
 import com.sxb.lin.atomikos.dubbo.rocketmq.MQProducerFor2PC;
 import com.sxb.lin.atomikos.dubbo.rocketmq.TransactionListenerImpl;
+import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceConfig;
 import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceProxy;
 import com.sxb.lin.atomikos.dubbo.tm.JtaTransactionManager;
 import com.sxb.lin.transactions.dubbo.test.demo4.util.RetUtil;
@@ -149,9 +150,17 @@ public class Demo5Config {
 		Set<String> excludeResourceNames = new HashSet<>();
 		excludeResourceNames.add(BConfig.DB_DEMO1_B);
 		
+		DubboTransactionManagerServiceConfig config = new DubboTransactionManagerServiceConfig();
+		config.setApplicationConfig(applicationConfig);
+		config.setRegistryConfig(registryConfig);
+		config.setProtocolConfig(protocolConfig);
+		config.setProviderConfig(providerConfig);
+		config.setConsumerConfig(consumerConfig);
+		config.setUniqueResourceMapping(dataSourceMapping);
+		config.setExcludeResourceNames(excludeResourceNames);
+		
 		DubboTransactionManagerServiceProxy instance = DubboTransactionManagerServiceProxy.getInstance();
-		instance.init(applicationConfig, registryConfig, protocolConfig, 
-				providerConfig, consumerConfig, dataSourceMapping, excludeResourceNames);
+		instance.init(config);
 		
 		return instance;
 	}

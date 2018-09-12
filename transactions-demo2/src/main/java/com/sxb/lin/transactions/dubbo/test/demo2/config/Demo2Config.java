@@ -24,6 +24,7 @@ import com.sxb.lin.atomikos.dubbo.pool.recover.DataSourceResource;
 import com.sxb.lin.atomikos.dubbo.pool.recover.UniqueResource;
 import com.sxb.lin.atomikos.dubbo.rocketmq.MQProducerFor2PC;
 import com.sxb.lin.atomikos.dubbo.rocketmq.TransactionListenerImpl;
+import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceConfig;
 import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceProxy;
 import com.sxb.lin.atomikos.dubbo.tm.JtaTransactionManager;
 
@@ -36,15 +37,28 @@ public class Demo2Config {
 			ApplicationConfig applicationConfig,RegistryConfig registryConfig,ProtocolConfig protocolConfig,
 			ProviderConfig providerConfig,ConsumerConfig consumerConfig,@Qualifier("dataSource1") DataSource ds1,
 			@Qualifier("dataSource2") DataSource ds2){
-		DubboTransactionManagerServiceProxy instance = DubboTransactionManagerServiceProxy.getInstance();
+		
 		Map<String,UniqueResource> dataSourceMapping = new HashMap<String, UniqueResource>();
 		dataSourceMapping.put(AConfig.DB_DEMO2_A, new DataSourceResource(AConfig.DB_DEMO2_A, ds1));
 		dataSourceMapping.put(BConfig.DB_DEMO2_B, new DataSourceResource(BConfig.DB_DEMO2_B, ds2));
+		
 		Set<String> excludeResourceNames = new HashSet<>();
 		excludeResourceNames.add(AConfig.DB_DEMO2_A);
 		excludeResourceNames.add(BConfig.DB_DEMO2_B);
-		instance.init(applicationConfig, registryConfig, protocolConfig, 
-				providerConfig, consumerConfig, dataSourceMapping, excludeResourceNames);
+		
+		DubboTransactionManagerServiceConfig config = new DubboTransactionManagerServiceConfig();
+		config.setApplicationConfig(applicationConfig);
+		config.setRegistryConfig(registryConfig);
+		config.setProtocolConfig(protocolConfig);
+		config.setProviderConfig(providerConfig);
+		config.setConsumerConfig(consumerConfig);
+		config.setUniqueResourceMapping(dataSourceMapping);
+		config.setExcludeResourceNames(excludeResourceNames);
+		//config.setServiceDispatcher("xa_all");
+		//config.setServiceLoadbalance("sticky_roundrobin");
+		
+		DubboTransactionManagerServiceProxy instance = DubboTransactionManagerServiceProxy.getInstance();
+		instance.init(config);
 		return instance;
 	}
 

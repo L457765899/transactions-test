@@ -1,4 +1,4 @@
-package com.sxb.lin.transactions.dubbo.test.demo1.config;
+package com.sxb.lin.transactions.dubbo.test.demo6.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +12,7 @@ import com.alibaba.dubbo.config.RegistryConfig;
 import com.alibaba.dubbo.config.spring.context.annotation.DubboComponentScan;
 
 @Configuration
-@DubboComponentScan("com.sxb.lin.transactions.dubbo.test.demo1.service.impl")
+@DubboComponentScan("com.sxb.lin.transactions.dubbo.test.demo6.service.impl")
 public class DubboConfig {
 	
 	@Value("${dubbo.application.name}")
@@ -38,15 +38,6 @@ public class DubboConfig {
     
     @Value("${dubbo.provider.threads}")
     private Integer threads;
-    
-    @Value("${dubbo.provider.loadbalance}")
-    private String loadbalance;
-    
-    @Value("${dubbo.provider.filter}")
-    private String providerFilter;
-    
-    @Value("${dubbo.consumer.filter}")
-    private String consumerFilter;
 
     @Bean
     public ApplicationConfig applicationConfig(){
@@ -83,9 +74,7 @@ public class DubboConfig {
         ProviderConfig providerConfig = new ProviderConfig();
         providerConfig.setTimeout(timeout);
         providerConfig.setThreads(threads);
-        providerConfig.setLoadbalance(loadbalance);
         providerConfig.setToken(token);
-        providerConfig.setFilter(providerFilter);
         return providerConfig;
     }
     
@@ -93,7 +82,6 @@ public class DubboConfig {
     public ConsumerConfig consumerConfig(){
         ConsumerConfig consumerConfig = new ConsumerConfig();
         consumerConfig.setCheck(false);
-        consumerConfig.setFilter(consumerFilter);
         return consumerConfig;
     }
 }

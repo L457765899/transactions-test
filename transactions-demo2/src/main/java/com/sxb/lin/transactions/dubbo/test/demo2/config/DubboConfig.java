@@ -33,9 +33,6 @@ public class DubboConfig {
     @Value("${dubbo.protocol.name}")
     private String protocolName;
     
-    @Value("${dubbo.protocol.dispatcher}")
-    private String dispatcher;
-    
     @Value("${dubbo.provider.timeout}")
     private Integer timeout;
     
@@ -72,7 +69,6 @@ public class DubboConfig {
         ProtocolConfig protocolConfig = new ProtocolConfig();
         protocolConfig.setPort(port);
         protocolConfig.setName(protocolName);
-        protocolConfig.setDispatcher(dispatcher);
         return protocolConfig;
     }
     

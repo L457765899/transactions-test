@@ -42,6 +42,7 @@ import com.sxb.lin.atomikos.dubbo.mybatis.XASpringManagedTransactionFactory;
 import com.sxb.lin.atomikos.dubbo.pool.recover.ConnectionFactoryResource;
 import com.sxb.lin.atomikos.dubbo.pool.recover.DataSourceResource;
 import com.sxb.lin.atomikos.dubbo.pool.recover.UniqueResource;
+import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceConfig;
 import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceProxy;
 import com.sxb.lin.atomikos.dubbo.spring.TransactionAttributeSourceProxy;
 import com.sxb.lin.atomikos.dubbo.spring.jms.JtaJmsTemplate;
@@ -236,9 +237,17 @@ public class Demo4Config {
 		Set<String> excludeResourceNames = new HashSet<>();
 		excludeResourceNames.add(MQ);
 		
+		DubboTransactionManagerServiceConfig config = new DubboTransactionManagerServiceConfig();
+		config.setApplicationConfig(applicationConfig);
+		config.setRegistryConfig(registryConfig);
+		config.setProtocolConfig(protocolConfig);
+		config.setProviderConfig(providerConfig);
+		config.setConsumerConfig(consumerConfig);
+		config.setUniqueResourceMapping(dataSourceMapping);
+		config.setExcludeResourceNames(excludeResourceNames);
+		
 		DubboTransactionManagerServiceProxy instance = DubboTransactionManagerServiceProxy.getInstance();
-		instance.init(applicationConfig, registryConfig, protocolConfig, providerConfig, consumerConfig, 
-				dataSourceMapping, excludeResourceNames);
+		instance.init(config);
 		
 		return instance;
 	}

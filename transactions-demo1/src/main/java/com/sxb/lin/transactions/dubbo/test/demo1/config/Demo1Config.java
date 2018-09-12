@@ -24,6 +24,7 @@ import com.atomikos.icatch.jta.UserTransactionManager;
 import com.sxb.lin.atomikos.dubbo.pool.recover.ConnectionFactoryResource;
 import com.sxb.lin.atomikos.dubbo.pool.recover.DataSourceResource;
 import com.sxb.lin.atomikos.dubbo.pool.recover.UniqueResource;
+import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceConfig;
 import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceProxy;
 import com.sxb.lin.atomikos.dubbo.tm.JtaTransactionManager;
 
@@ -48,9 +49,19 @@ public class Demo1Config {
 		excludeResourceNames.add(BConfig.DB_DEMO1_B);
 		excludeResourceNames.add(MQConfig.MQ);
 		
+		DubboTransactionManagerServiceConfig config = new DubboTransactionManagerServiceConfig();
+		config.setApplicationConfig(applicationConfig);
+		config.setRegistryConfig(registryConfig);
+		config.setProtocolConfig(protocolConfig);
+		config.setProviderConfig(providerConfig);
+		config.setConsumerConfig(consumerConfig);
+		config.setUniqueResourceMapping(dataSourceMapping);
+		config.setExcludeResourceNames(excludeResourceNames);
+		//config.setServiceDispatcher("xa_all");
+		//config.setServiceLoadbalance("sticky_roundrobin");
+		
 		DubboTransactionManagerServiceProxy instance = DubboTransactionManagerServiceProxy.getInstance();
-		instance.init(applicationConfig, registryConfig, protocolConfig, 
-				providerConfig, consumerConfig, dataSourceMapping, excludeResourceNames);
+		instance.init(config);
 		
 		return instance;
 	}
