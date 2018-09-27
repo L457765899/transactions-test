@@ -85,6 +85,8 @@ public class Demo1ServiceImpl implements Demo1Service{
 		t1Mapper.insertSelective(t1);
 		
 		demo2Service.add1();
+		
+		throw new RuntimeException();
 	}
 
 	@Override

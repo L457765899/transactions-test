@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.interceptor.TransactionAttributeSource;
+import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 import com.alibaba.dubbo.config.ApplicationConfig;
 import com.alibaba.dubbo.config.ConsumerConfig;
@@ -26,6 +28,7 @@ import com.sxb.lin.atomikos.dubbo.pool.recover.DataSourceResource;
 import com.sxb.lin.atomikos.dubbo.pool.recover.UniqueResource;
 import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceConfig;
 import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceProxy;
+import com.sxb.lin.atomikos.dubbo.spring.TransactionAttributeSourceProxy;
 import com.sxb.lin.atomikos.dubbo.tm.JtaTransactionManager;
 
 @Configuration
@@ -37,7 +40,13 @@ public class Demo1Config {
 			ApplicationConfig applicationConfig, RegistryConfig registryConfig, 
 			ProtocolConfig protocolConfig, ProviderConfig providerConfig, ConsumerConfig consumerConfig,
 			@Qualifier("dataSource1") DataSource ds1, @Qualifier("dataSource2") DataSource ds2,
-			@Qualifier("pooledJmsConnectionFactory") ConnectionFactory connectionFactory){
+			@Qualifier("pooledJmsConnectionFactory") ConnectionFactory connectionFactory,
+			TransactionInterceptor transactionInterceptor){
+		
+		TransactionAttributeSource transactionAttributeSource = transactionInterceptor.getTransactionAttributeSource();
+    	TransactionAttributeSourceProxy transactionAttributeSourceProxy = new TransactionAttributeSourceProxy();
+    	transactionAttributeSourceProxy.setTransactionAttributeSource(transactionAttributeSource);
+    	transactionInterceptor.setTransactionAttributeSource(transactionAttributeSourceProxy);
 		
 		Map<String,UniqueResource> dataSourceMapping = new HashMap<String, UniqueResource>();
 		dataSourceMapping.put(AConfig.DB_DEMO1_A, new DataSourceResource(AConfig.DB_DEMO1_A, ds1));

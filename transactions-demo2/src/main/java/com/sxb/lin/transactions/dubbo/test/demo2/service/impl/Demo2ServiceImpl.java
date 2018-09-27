@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sxb.lin.atomikos.dubbo.annotation.NOXA;
 import com.sxb.lin.atomikos.dubbo.rocketmq.MQProducerFor2PC;
 import com.sxb.lin.transactions.dubbo.test.demo2.a.dao.T1Mapper;
 import com.sxb.lin.transactions.dubbo.test.demo2.a.model.T1;
@@ -62,6 +63,7 @@ public class Demo2ServiceImpl implements Demo2Service {
 
 	@Override
 	@Transactional
+	@NOXA
 	public void add1() {
 		T1 t1 = new T1();
 		t1.setName("1-demo2-t1-"+System.currentTimeMillis());
