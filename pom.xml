@@ -38,17 +38,6 @@
 		<rocketmq.version>4.3.0</rocketmq.version>
 	</properties>
 	
-	<!-- 下载私服 -->
-	<repositories>
-		<repository>
-			<id>hosted-public</id>
-			<url>http://121.41.29.204:9090/nexus/content/groups/public</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-	
 	<build>
 	
 		<resources>
