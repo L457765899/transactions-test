@@ -78,8 +78,8 @@ public class Demo3Config {
         druidXADataSource.setFilters("mergeStat");
         druidXADataSource.setConnectProperties(this.getConnectProperties());
         druidXADataSource.setUrl("jdbc:mysql://192.168.0.252:3306/demo3-a");
-        druidXADataSource.setUsername("root");
-        druidXADataSource.setPassword("Sxb889961");
+        druidXADataSource.setUsername("demo");
+        druidXADataSource.setPassword("123456");
         
         return druidXADataSource;
 	}

@@ -62,8 +62,8 @@ public class AConfig {
         druidXADataSource.setFilters("mergeStat");
         druidXADataSource.setConnectProperties(this.getConnectProperties());
         druidXADataSource.setUrl("jdbc:mysql://192.168.0.252:3306/demo1-a");
-        druidXADataSource.setUsername("root");
-        druidXADataSource.setPassword("Sxb889961");
+        druidXADataSource.setUsername("demo");
+        druidXADataSource.setPassword("123456");
         
         AtomikosDataSourceBean atomikosDataSourceBean = new AtomikosDataSourceBean();
         atomikosDataSourceBean.setUniqueResourceName(DB_DEMO1_A);

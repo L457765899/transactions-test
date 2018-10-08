@@ -88,8 +88,8 @@ public class Demo5Config {
 //        druidXADataSource.setFilters("mergeStat");
 //        druidXADataSource.setConnectProperties(this.getConnectProperties());
 //        druidXADataSource.setUrl("jdbc:mysql://192.168.0.252:3306/demo3-a");
-//        druidXADataSource.setUsername("root");
-//        druidXADataSource.setPassword("Sxb889961");
+//        druidXADataSource.setUsername("demo");
+//        druidXADataSource.setPassword("123456");
 //        
 //        return druidXADataSource;
 //	}
@@ -109,8 +109,8 @@ public class Demo5Config {
 		bean.setTestQuery("SELECT 1");
 		bean.setDriverClassName("com.mysql.jdbc.Driver");
 		bean.setUrl("jdbc:mysql://192.168.0.252:3306/demo3-a");
-		bean.setUser("root");
-		bean.setPassword("Sxb889961");
+		bean.setUser("demo");
+		bean.setPassword("123456");
 		return bean;
 	}
 	
