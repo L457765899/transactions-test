@@ -213,25 +213,43 @@ public class RocketMQServiceImpl implements RocketMQService{
 		t2.setTime(System.currentTimeMillis());
 		t2Mapper.insertSelective(t2);
 		
+//		Message msg1 = new Message(
+//				Demo5Config.TOPIC_TEST,
+//				"TagA",
+//				("本地事务前提交1。").getBytes());
+//		producer2PC.sendMessageBeforeCommit(msg1);
+//		
+//		Message msg2 = new Message(
+//				Demo5Config.TOPIC_OTHER,
+//				"TagA",
+//				("本地事务前提交2。").getBytes());
+//		producer2PC.sendMessageBeforeCommit(msg2);
+//		
+//		Message msg3 = new Message(
+//				Demo5Config.TOPIC_OTHER,
+//				"TagA",
+//				("本地事务前提交3。").getBytes());
+//		producer2PC.sendMessageBeforeCommit(msg3);
+		
 		Message msg1 = new Message(
 				Demo5Config.TOPIC_TEST,
 				"TagA",
 				("本地事务后提交1。").getBytes());
-		producer2PC.sendMessageAfterTransaction(msg1);
+		producer2PC.sendMessageBeforeCommit(msg1);
 		
 		Message msg2 = new Message(
 				Demo5Config.TOPIC_OTHER,
 				"TagA",
 				("本地事务后提交2。").getBytes());
-		producer2PC.sendMessageAfterTransaction(msg2);
+		producer2PC.sendMessageBeforeCommit(msg2);
 		
 		Message msg3 = new Message(
 				Demo5Config.TOPIC_OTHER,
 				"TagA",
 				("本地事务后提交3。").getBytes());
-		producer2PC.sendMessageAfterTransaction(msg3);
+		producer2PC.sendMessageBeforeCommit(msg3);
 		
-		//throw new RuntimeException();
+		throw new RuntimeException();
 	}
 
 	@Override
