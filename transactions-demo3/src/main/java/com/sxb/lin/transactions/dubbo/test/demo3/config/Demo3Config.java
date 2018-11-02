@@ -107,7 +107,7 @@ public class Demo3Config {
         return userTransaction;
     }
     
-    @Bean
+    @Bean(destroyMethod = "destory")
 	@Autowired
 	public DubboTransactionManagerServiceProxy dubboTransactionManagerServiceProxy(
 			ApplicationConfig applicationConfig,RegistryConfig registryConfig,ProtocolConfig protocolConfig,

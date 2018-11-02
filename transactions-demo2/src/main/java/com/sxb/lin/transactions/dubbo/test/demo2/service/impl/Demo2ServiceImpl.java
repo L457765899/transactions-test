@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.sxb.lin.atomikos.dubbo.annotation.NOXA;
 import com.sxb.lin.atomikos.dubbo.rocketmq.MQProducerFor2PC;
 import com.sxb.lin.transactions.dubbo.test.demo2.a.dao.T1Mapper;
@@ -13,6 +14,7 @@ import com.sxb.lin.transactions.dubbo.test.demo2.b.dao.T2Mapper;
 import com.sxb.lin.transactions.dubbo.test.demo2.b.model.T2;
 import com.sxb.lin.transactions.dubbo.test.demo2.service.Demo22Service;
 import com.sxb.lin.transactions.dubbo.test.demo2.service.Demo2Service;
+import com.sxb.lin.transactions.dubbo.test.demo3.service.Demo33Service;
 
 @Service
 @com.alibaba.dubbo.config.annotation.Service
@@ -26,6 +28,9 @@ public class Demo2ServiceImpl implements Demo2Service {
 	
 	@Autowired
 	private Demo22Service demo22Service;
+	
+	@Reference
+	private Demo33Service demo33Service;
 	
 	@Autowired
 	private MQProducerFor2PC producer;
@@ -44,6 +49,8 @@ public class Demo2ServiceImpl implements Demo2Service {
 		t2Mapper.insertSelective(t2);
 		
 		demo22Service.add();
+		
+		//demo33Service.add111();
 	}
 
 	@Override

@@ -5,4 +5,6 @@ public interface Demo33Service {
 	void add3();
 
 	void add11();
+
+	void add111();
 }

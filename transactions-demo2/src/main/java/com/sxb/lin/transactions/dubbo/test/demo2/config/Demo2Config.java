@@ -34,7 +34,7 @@ import com.sxb.lin.atomikos.dubbo.tm.JtaTransactionManager;
 @Configuration
 public class Demo2Config {
 	
-	@Bean
+	@Bean(destroyMethod = "destory")
 	@Autowired
 	public DubboTransactionManagerServiceProxy dubboTransactionManagerServiceProxy(
 			ApplicationConfig applicationConfig,RegistryConfig registryConfig,ProtocolConfig protocolConfig,
