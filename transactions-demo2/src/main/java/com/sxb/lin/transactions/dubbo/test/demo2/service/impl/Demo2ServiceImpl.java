@@ -50,7 +50,14 @@ public class Demo2ServiceImpl implements Demo2Service {
 		
 		demo22Service.add();
 		
-		//demo33Service.add111();
+//		demo33Service.add111();
+//		
+//		//测试超时情况，比事务超时时间，和dubbo超时时间多10秒
+//		try {
+//			Thread.sleep(130000);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	@Override
