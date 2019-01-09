@@ -38,7 +38,7 @@ import com.atomikos.icatch.jta.UserTransactionManager;
 import com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean;
 import com.sxb.lin.atomikos.dubbo.pool.recover.DataSourceResource;
 import com.sxb.lin.atomikos.dubbo.pool.recover.UniqueResource;
-import com.sxb.lin.atomikos.dubbo.rocketmq.DefaultMessageListener;
+import com.sxb.lin.atomikos.dubbo.rocketmq.DefaultMessageListenerConcurrently;
 import com.sxb.lin.atomikos.dubbo.rocketmq.MQProducerFor2PC;
 import com.sxb.lin.atomikos.dubbo.rocketmq.TransactionListenerImpl;
 import com.sxb.lin.atomikos.dubbo.service.DubboTransactionManagerServiceConfig;
@@ -215,7 +215,7 @@ public class Demo5Config {
     	subscription.put(TOPIC_TEST, "*");
     	subscription.put(TOPIC_OTHER, "*");
     	consumer.setSubscription(subscription);
-    	MessageListenerConcurrently messageListener = new DefaultMessageListener(publisher);
+    	MessageListenerConcurrently messageListener = new DefaultMessageListenerConcurrently(publisher);
     	consumer.registerMessageListener(messageListener);
     	return consumer;
     }
