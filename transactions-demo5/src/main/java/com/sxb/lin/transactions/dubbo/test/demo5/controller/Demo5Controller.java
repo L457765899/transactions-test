@@ -70,7 +70,11 @@ public class Demo5Controller {
 		rocketMQService.sendLocalTra();
 		return RetUtil.getRetValue(true);
 	}
-	
+
+	/**
+	 * demo5-mq-demo2-mq
+	 * @return
+	 */
 	@RequestMapping(value="/sendDubboXa.json")
 	public Map<String,Object> sendDubboXa(){
 		rocketMQService.sendDubboXa();

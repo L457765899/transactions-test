@@ -108,7 +108,7 @@ public class Demo5Config {
 		bean.setLoginTimeout(3600);
 		bean.setTestQuery("SELECT 1");
 		bean.setDriverClassName("com.mysql.jdbc.Driver");
-		bean.setUrl("jdbc:mysql://192.168.0.252:3306/demo3-a");
+		bean.setUrl("jdbc:mysql://localhost:3306/demo3-a");
 		bean.setUser("demo");
 		bean.setPassword("123456");
 		return bean;
@@ -179,7 +179,7 @@ public class Demo5Config {
     @Bean(initMethod="start",destroyMethod="shutdown")
     public TransactionMQProducer defaultProducer(){
     	TransactionMQProducer producer = new TransactionMQProducer("producer_test");
-    	producer.setNamesrvAddr("192.168.0.252:9876");
+    	producer.setNamesrvAddr("localhost:9876");
     	producer.setTransactionListener(new TransactionListener() {
 			@Override
 			public LocalTransactionState executeLocalTransaction(Message msg, Object arg) {
@@ -200,7 +200,7 @@ public class Demo5Config {
     @Bean(initMethod="start",destroyMethod="shutdown")
     public MQProducerFor2PC producerFor2PC(){
     	MQProducerFor2PC producer = new MQProducerFor2PC("producer_test_2PC");
-    	producer.setNamesrvAddr("192.168.0.252:9876");
+    	producer.setNamesrvAddr("localhost:9876");
     	producer.setTransactionListener(new TransactionListenerImpl());
 		return producer;
     }
@@ -209,7 +209,7 @@ public class Demo5Config {
     @Autowired
     public DefaultMQPushConsumer defaultConsumer(ApplicationEventPublisher publisher) throws MQClientException {
     	DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("consumer_test");
-    	consumer.setNamesrvAddr("192.168.0.252:9876");
+    	consumer.setNamesrvAddr("localhost:9876");
     	//consumer.setConsumeMessageBatchMaxSize(3);
     	Map<String, String> subscription = new HashMap<String, String>();
     	subscription.put(TOPIC_TEST, "*");

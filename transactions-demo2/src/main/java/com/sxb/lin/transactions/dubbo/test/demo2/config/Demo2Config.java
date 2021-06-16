@@ -95,7 +95,7 @@ public class Demo2Config {
     @Bean(initMethod="start",destroyMethod="shutdown")
     public MQProducerFor2PC producerFor2PC(){
     	MQProducerFor2PC producer = new MQProducerFor2PC("producer_test_2PC");
-    	producer.setNamesrvAddr("192.168.0.252:9876");
+    	producer.setNamesrvAddr("localhost:9876");
     	producer.setTransactionListener(new TransactionListenerImpl());
 		return producer;
     }

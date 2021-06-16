@@ -58,7 +58,7 @@ public class BConfig {
         druidXADataSource.setMinEvictableIdleTimeMillis(600000);
         druidXADataSource.setFilters("mergeStat");
         druidXADataSource.setConnectProperties(this.getConnectProperties());
-        druidXADataSource.setUrl("jdbc:mysql://192.168.0.252:3306/demo1-b");
+        druidXADataSource.setUrl("jdbc:mysql://localhost:3306/demo1-b");
         druidXADataSource.setUsername("demo");
         druidXADataSource.setPassword("123456");
         
